@@ -25,17 +25,32 @@ async function makeApiCall(url, method = 'GET', body = null, headers = {'Content
 
     try {
         const response = await fetch(url, options);
-        const responseData = await response.json(); // Try to parse JSON regardless of status for error messages
-
-        if (!response.ok) {
-            // Use error message from API if available, otherwise use status text
-            const errorMessage = responseData.message || responseData.error || response.statusText || `HTTP error ${response.status}`;
-            throw new Error(errorMessage);
+        
+        // Check if the response is JSON before trying to parse it
+        const contentType = response.headers.get('content-type');
+        
+        if (contentType && contentType.includes('application/json')) {
+            const responseData = await response.json();
+            
+            if (!response.ok) {
+                const errorMessage = responseData.message || responseData.error || response.statusText || `HTTP error ${response.status}`;
+                throw new Error(errorMessage);
+            }
+            
+            return responseData;
+        } else {
+            // Handle non-JSON responses
+            const textResponse = await response.text();
+            console.error(`API returned non-JSON response:`, textResponse);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
+            } else {
+                throw new Error(`Expected JSON but received: ${contentType || 'unknown content type'}`);
+            }
         }
-        return responseData; // This usually contains a 'data' property or is the data itself
     } catch (error) {
         console.error(`API call failed for ${method} ${url}:`, error);
-        // Re-throw the error so the calling function can handle it
         throw error;
     }
 }
