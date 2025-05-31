@@ -16,8 +16,8 @@ async function loadProjects() {
 
         renderProjects(projects);
     } catch (error) {
-        showMessage(Error loading projects: ${error.message}, 'error');
-        projectsTableBody.innerHTML = <tr><td colspan="4">Error: ${error.message}</td></tr>;
+        showMessage('Error loading projects: ${error.message}', 'error');
+        projectsTableBody.innerHTML = '<tr><td colspan="4">Error: ${error.message}</td></tr>';
         
         // Optionally fall back to mock data even on error
         console.log('Using mock data due to API error');
