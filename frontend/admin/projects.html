@@ -7,6 +7,32 @@
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
+        <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const configLoaded = await initializeApiConfig();
+            if (configLoaded) {
+                // Now that API_BASE_URL is set, you can initialize other things
+                // or load scripts that depend on it.
+                // For example, if admin_auth.js or admin_workers.js need API_BASE_URL immediately:
+                // You might need to adjust how these scripts are loaded or initialized.
+                // One simple way is to ensure their main functions are called here.
+                
+                // Example for admin_auth.js (if it has an init function)
+                // if (typeof initializeAdminAuth === 'function') initializeAdminAuth();
+
+                // Example for admin_workers.js (if its main logic is in a function like loadWorkers)
+                if (document.getElementById('workersTableBody') && typeof loadWorkers === 'function') {
+                    loadWorkers(); // Assuming loadWorkers is defined in admin_workers.js and uses API_BASE_URL
+                }
+                // Similar for projects page
+                if (document.getElementById('projectsTableBody') && typeof loadProjects === 'function') {
+                    loadProjects(); 
+                }
+            } else {
+                console.error("Failed to load API configuration. Page functionality will be limited.");
+            }
+        });
+    </script>
     <div class="admin-container">
         <aside class="admin-sidebar">
             <h2>Admin Menu</h2>
