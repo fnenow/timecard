@@ -17,38 +17,28 @@ async function makeApiCall(url, method = 'GET', body = null, headers = {'Content
         options.body = JSON.stringify(body);
     }
 
-    // Add JWT token to headers if available (implement auth later)
-    // const token = localStorage.getItem('authToken');
-    // if (token) {
-    //     options.headers['Authorization'] = `Bearer ${token}`;
-    // }
-
     try {
         const response = await fetch(url, options);
-        
-        // Check if the response is JSON before trying to parse it
-        const contentType = response.headers.get('content-type');
-        
-        if (contentType && contentType.includes('application/json')) {
-            const responseData = await response.json();
-            
-            if (!response.ok) {
-                const errorMessage = responseData.message || responseData.error || response.statusText || `HTTP error ${response.status}`;
-                throw new Error(errorMessage);
-            }
-            
-            return responseData;
-        } else {
-            // Handle non-JSON responses
-            const textResponse = await response.text();
-            console.error(`API returned non-JSON response:`, textResponse);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
-            } else {
-                throw new Error(`Expected JSON but received: ${contentType || 'unknown content type'}`);
-            }
+        const text = await response.text();
+
+        // Debug: log raw response
+        console.log(`[makeApiCall] ${method} ${url} → Raw response:`, text);
+
+        // Try parsing as JSON, catch errors
+        let responseData;
+        try {
+            responseData = JSON.parse(text);
+        } catch (jsonErr) {
+            // Not JSON (e.g., HTML error), throw clear error
+            throw new Error(`Invalid JSON from API. Raw response: ${text.substring(0, 200)}`);
         }
+
+        if (!response.ok) {
+            // Use error message from API if available, otherwise use status text
+            const errorMessage = responseData.message || responseData.error || response.statusText || `HTTP error ${response.status}`;
+            throw new Error(errorMessage);
+        }
+        return responseData;
     } catch (error) {
         console.error(`API call failed for ${method} ${url}:`, error);
         throw error;
