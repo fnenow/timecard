@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Manage Projects</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <h2>Admin Menu</h2>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="projects.html" class="active">Projects</a>
+            <a href="workers.html">Workers</a>
+            <a href="payroll.html">Payroll</a>
+            <hr>
+            <a href="#" id="adminLogoutBtn">Logout</a>
+        </aside>
+        <main class="admin-main-content">
+            <h1>Manage Projects</h1>
+            <div id="messageArea" class="message" style="display:none;"></div>
+
+            <button id="showAddProjectFormBtn">Add New Project</button>
+
+            <form id="projectForm" style="display:none; margin-top: 20px; padding:15px; border: 1px solid #eee; border-radius:5px;">
+                <h3 id="formTitle">Add New Project</h3>
+                <input type="hidden" id="projectId">
+                <div>
+                    <label for="projectName">Project Name:</label>
+                    <input type="text" id="projectName" required>
+                </div>
+                <div>
+                    <label for="projectDescription">Description:</label>
+                    <textarea id="projectDescription" rows="3"></textarea>
+                </div>
+                <div>
+                    <label for="projectIsActive">Is Active:</label>
+                    <input type="checkbox" id="projectIsActive" checked>
+                </div>
+                <button type="submit" id="saveProjectBtn">Save Project</button>
+                <button type="button" id="cancelEditBtn" style="display:none;">Cancel</button>
+            </form>
+
+            <hr style="margin-top:20px;">
+            <h2>Existing Projects</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="projectsTableBody">
+                    <!-- Data will be populated by JS -->
+                </tbody>
+            </table>
+        </main>
+    </div>
+    <script src="../js/utils.js"></script>
+    <script src="../js/admin_auth.js"></script>
+    <script src="js/admin_projects.js"></script>
+</body>
+</html>
