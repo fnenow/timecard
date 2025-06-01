@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Clock In/Out</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Time Clock</h1>
+        <div id="clockStatus">
+            <p>Current Status: <span id="currentStatusText">Not Clocked In</span></p>
+            <p>Project: <span id="currentProjectText">-</span></p>
+            <p>Clocked In At: <span id="clockInTimeText">-</span></p>
+        </div>
+        <hr>
+
+        <!-- Assume worker ID is known, e.g., from a login or selection -->
+        <input type="hidden" id="workerId" value="1"> <!-- Placeholder -->
+
+        <div>
+            <label for="projectSelect">Select Project:</label>
+            <select id="projectSelect">
+                <option value="">Loading projects...</option>
+            </select>
+        </div>
+
+        <button id="clockInBtn">Clock In</button>
+        <button id="clockOutBtn" style="display:none;">Clock Out</button>
+
+        <div id="messageArea" class="message" style="display:none;"></div>
+        <p><a href="worker_view.html">View My Hours</a></p>
+        <p><a href="admin_login.html">Admin Login</a></p>
+    </div>
+    <script src="js/utils.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
