@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Manage Workers</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <h2>Admin Menu</h2>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="projects.html">Projects</a>
+            <a href="workers.html" class="active">Workers</a>
+            <a href="payroll.html">Payroll</a>
+            <hr>
+            <a href="#" id="adminLogoutBtn">Logout</a>
+        </aside>
+        <main class="admin-main-content">
+            <h1>Manage Workers</h1>
+            <div id="messageArea" class="message" style="display:none;"></div>
+
+            <button id="showAddWorkerFormBtn">Add New Worker</button>
+
+            <form id="workerForm" style="display:none; margin-top: 20px; padding:15px; border: 1px solid #eee; border-radius:5px;">
+                <h3 id="workerFormTitle">Add New Worker</h3>
+                <input type="hidden" id="workerIdInput">
+                <div>
+                    <label for="workerName">Full Name:</label>
+                    <input type="text" id="workerName" required>
+                </div>
+                <div>
+                    <label for="workerEmployeeId">Employee ID Number:</label>
+                    <input type="text" id="workerEmployeeId">
+                </div>
+                <div>
+                    <label for="workerPhoneNumber">Phone Number:</label>
+                    <input type="text" id="workerPhoneNumber">
+                </div>
+                <div>
+                    <label for="workerAddress">Address:</label>
+                    <textarea id="workerAddress" rows="2"></textarea>
+                </div>
+                <!-- Add more fields as needed: email, is_active, etc. -->
+                <button type="submit" id="saveWorkerBtn">Save Worker</button>
+                <button type="button" id="cancelWorkerEditBtn" style="display:none;">Cancel</button>
+            </form>
+
+            <hr style="margin-top:20px;">
+            <h2>Existing Workers</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Employee ID</th>
+                        <th>Phone</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="workersTableBody">
+                    <!-- Data will be populated by JS -->
+                </tbody>
+            </table>
+
+            <!-- Pay Rate Management Modal/Section (Simplified) -->
+            <div id="payRateSection" style="display:none; margin-top: 30px; padding:20px; border: 1px solid #ccc; border-radius:5px;">
+                <h3 id="payRateWorkerName">Pay Rates for [Worker]</h3>
+                <input type="hidden" id="payRateWorkerIdInput">
+                <form id="addPayRateForm">
+                    <div>
+                        <label for="rateAmount">New Rate Amount ($/hr):</label>
+                        <input type="number" id="rateAmount" step="0.01" required>
+                    </div>
+                    <div>
+                        <label for="effectiveStartDate">Effective Start Date:</label>
+                        <input type="date" id="effectiveStartDate" required>
+                    </div>
+                    <button type="submit">Add Pay Rate</button>
+                    <button type="button" id="closePayRateSectionBtn">Close</button>
+                </form>
+                <h4>Current & Historical Pay Rates</h4>
+                <table id="payRatesTable">
+                    <thead>
+                        <tr>
+                            <th>Rate ($)</th>
+                            <th>Effective Start</th>
+                            <th>Effective End</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payRatesTableBody"></tbody>
+                </table>
+            </div>
+
+        </main>
+    </div>
+    <script src="../js/utils.js"></script>
+    <script src="../js/admin_auth.js"></script>
+    <script src="js/admin_workers.js"></script>
+</body>
+</html>
