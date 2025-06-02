@@ -1,5 +1,0 @@
-{
-  "routes": {
-    "/api/*": "https://backend-production-1ac9.up.railway.app"
-  }
-}
