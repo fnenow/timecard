@@ -2,6 +2,7 @@
 const express = require('express');
 const app = express();
 const sequelize = require('./models/index');
+const workerRoutes = require('./api/workerRoutes');
 
 // Middleware, routes, etc.
 app.use(express.json());
