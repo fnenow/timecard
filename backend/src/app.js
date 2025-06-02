@@ -5,7 +5,7 @@ const app = express();
 
 // Middleware
 app.use(cors({		// Enable CORS for all routes
-	origin: "*",	// For development; restrict to your frontend origin in production!
+	origin: "site-production-52c4.up.railway.app",	// For development; restrict to your frontend origin in production!
 	credentials: true
 	})); 
 app.use(express.json()); // Parse JSON request bodies
