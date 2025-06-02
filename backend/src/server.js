@@ -1,6 +1,6 @@
 const app = require('./app');
 
-const PORT = process.env.PORT || 3001; // Railway provides PORT
+const PORT = process.env.PORT || 3000; // Railway provides PORT
 
 app.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`);
