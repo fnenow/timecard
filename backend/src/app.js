@@ -1,6 +1,10 @@
 //v3
 const express = require('express');
 const app = express();
+app.use(cors());
+
+
+app.use('/api/workers', workerRoutes);
 const sequelize = require('./models/index');
 const workerRoutes = require('./api/workerRoutes');
 
