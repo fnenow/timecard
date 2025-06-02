@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentProjectText = document.getElementById('currentProjectText');
     const clockInTimeText = document.getElementById('clockInTimeText');
 
-    const API_BASE_URL = ''; // Relative to current host, or set full like 'http://localhost:3001'
+    const API_BASE_URL = 'https://backend-production-1ac9.up.railway.app'; // Relative to current host, or set full like 'http://localhost:3001'
 
     // --- Load Projects ---
     async function loadProjects() {
