@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - {{PAGE_TITLE}}</title> <!-- Placeholder for page title -->
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <h2>Admin Menu</h2>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="projects.html">Projects</a>
+            <a href="workers.html">Workers</a>
+            <a href="payroll.html">Payroll</a>
+            <hr>
+            <a href="#" id="adminLogoutBtn">Logout</a>
+        </aside>
+        <main class="admin-main-content">
+            <!-- Page-specific content will go here -->
+            <h1>{{PAGE_HEADING}}</h1>
+            <div id="messageArea" class="message" style="display:none;"></div>
+            <!-- {{CONTENT_PLACEHOLDER}} -->
+        </main>
+    </div>
+    <script src="../js/utils.js"></script>
+    <script src="../js/admin_auth.js"></script> <!-- For checkAdminAuth and logout -->
+    <!-- Page-specific JS file here, e.g., <script src="js/admin_dashboard.js"></script> -->
+</body>
+</html>
