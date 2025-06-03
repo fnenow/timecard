@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await loadAssignedProjects(worker.worker_id);
             loginSection.style.display = 'none';
             clockSection.style.display = '';
-            showMessage(`Welcome, ${worker.name}!`, 'success');
+            showMessage(`Welcome, ${worker.name || worker.email || worker.worker_id}!`, 'success');
             updateClockUI(false);
             // Optionally: fetch and show last clock status
         } catch (err) {
