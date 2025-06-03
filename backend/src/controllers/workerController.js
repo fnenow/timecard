@@ -21,7 +21,7 @@ exports.createWorker = async (req, res) => {
 // Get all workers (GET /api/workers)
 exports.getAllWorkers = async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM workers ORDER BY id ASC');
+    const result = await pool.query('SELECT * FROM workers ORDER BY worker_id ASC');
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch workers', details: err.message });
@@ -31,7 +31,7 @@ exports.getAllWorkers = async (req, res) => {
 // Get a worker by ID (GET /api/workers/:workerId)
 exports.getWorkerById = async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM workers WHERE id = $1', [req.params.workerId]);
+    const result = await pool.query('SELECT * FROM workers WHERE worker_id = $1', [req.params.workerId]);
     if (result.rows.length === 0) return res.status(404).json({ error: 'Worker not found' });
     res.json(result.rows[0]);
   } catch (err) {
@@ -44,7 +44,7 @@ exports.updateWorker = async (req, res) => {
   const { name } = req.body;
   try {
     const result = await pool.query(
-      'UPDATE workers SET name = $1 WHERE id = $2 RETURNING *',
+      'UPDATE workers SET name = $1 WHERE worker_id = $2 RETURNING *',
       [name, req.params.workerId]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Worker not found' });
@@ -58,8 +58,8 @@ exports.updateWorker = async (req, res) => {
 exports.getWorkerStatuses = (req, res) => {
   // Placeholder: you can make this dynamic!
   res.json([
-    { id: 1, status: 'active' },
-    { id: 2, status: 'inactive' }
+    { worker_id: 1, status: 'active' },
+    { worker_id: 2, status: 'inactive' }
   ]);
 };
 
