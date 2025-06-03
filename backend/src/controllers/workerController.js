@@ -1,4 +1,4 @@
-//v3
+//v4 06/02/25 21:42
 const { Pool } = require('pg');
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
@@ -19,15 +19,6 @@ exports.createWorker = async (req, res) => {
 };
 
 // Get all workers (GET /api/workers)
-exports.getWorkerTimeEntries = async (req, res) => {
-  try {
-    const timeEntries = await ClockEntry.findByWorkerId(req.params.workerId, req.query);
-    res.status(200).json(timeEntries);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching time entries', error: error.message });
-  }
-};
-
 exports.getAllWorkers = async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM workers ORDER BY id ASC');
@@ -62,34 +53,30 @@ exports.updateWorker = async (req, res) => {
     res.status(500).json({ error: 'Failed to update worker', details: err.message });
   }
 };
-exports.addPayRate = async (req, res) => {
-    try {
-        const { workerId } = req.params;
-        const { rateAmount, effectiveStartDate } = req.body;
-        // const newPayRate = await PayRate.add(workerId, rateAmount, effectiveStartDate);
-        // res.status(201).json(newPayRate);
-        res.status(201).json({ message: 'PayRate.add called', workerId, rateAmount, effectiveStartDate });
-    } catch (error) {
-        res.status(500).json({ message: 'Error adding pay rate', error: error.message });
-    }
+
+// GET /api/workers/statuses
+exports.getWorkerStatuses = (req, res) => {
+  // Placeholder: you can make this dynamic!
+  res.json([
+    { id: 1, status: 'active' },
+    { id: 2, status: 'inactive' }
+  ]);
 };
 
-exports.getPayRatesForWorker = async (req, res) => {
-    try {
-        // const payRates = await PayRate.findByWorkerId(req.params.workerId);
-        // res.status(200).json(payRates);
-        res.status(200).json({ message: 'PayRate.findByWorkerId called', workerId: req.params.workerId });
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching pay rates', error: error.message });
-    }
+// POST /api/workers/:workerId/pay-rates
+exports.addPayRate = (req, res) => {
+  // Implement DB logic as needed
+  res.json({ message: `Added pay rate for worker ${req.params.workerId}` });
 };
-exports.getWorkerStatuses = async (req, res) => {
-    try {
-        // const statuses = await ClockEntry.getCurrentStatuses();
-        // res.status(200).json(statuses);
-        res.status(200).json({ message: 'ClockEntry.getCurrentStatuses called' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching worker statuses', error: error.message });
-    }
+
+// GET /api/workers/:workerId/pay-rates
+exports.getPayRatesForWorker = (req, res) => {
+  // Implement DB logic as needed
+  res.json([{ workerId: req.params.workerId, payRate: 30 }]);
 };
-// You can implement delete and more fields if needed!
+
+// GET /api/workers/:workerId/time-entries
+exports.getWorkerTimeEntries = (req, res) => {
+  // Implement DB logic as needed
+  res.json([{ entryId: 1, workerId: req.params.workerId, hours: 8, date: '2024-01-01' }]);
+};
