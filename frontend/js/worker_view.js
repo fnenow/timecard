@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterBtn = document.getElementById('filterBtn');
     const timeEntriesTbody = document.getElementById('timeEntriesTbody');
     const messageArea = document.getElementById('messageArea');
-    const API_BASE_URL = 'https://backend-production-1ac9.up.railway.app'; // Or your backend endpoint
+    const API_BASE_URL = ''; // Relative
 
     async function fetchTimeEntries() {
         const workerId = workerIdInput.value;
@@ -20,13 +20,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (endDateFilter.value) queryParams += `&endDate=${endDateFilter.value}`;
         if (queryParams) queryParams = '?' + queryParams.substring(1);
 
+
         timeEntriesTbody.innerHTML = '<tr><td colspan="6">Loading entries...</td></tr>';
         try {
-            // NOTE: makeApiCall should be a helper that returns parsed JSON
             const response = await makeApiCall(`${API_BASE_URL}/api/workers/${workerId}/time-entries${queryParams}`);
-            // The backend now returns a real array of time entry objects
-            const entries = Array.isArray(response) ? response : (response.data || []);
-            if (entries.length > 0) {
+            // Assuming response is the array of entries or response.data is the array
+            // The actual structure depends on your backend (e.g., if it's wrapped in a 'data' object)
+            const entries = response.data || response; // Adjust based on actual API structure
+
+            if (entries && entries.message === 'ClockEntry.findByWorkerId for worker view called') { // Placeholder check
+                 // Use mock data if placeholder response
+                renderTimeEntries([{ entry_id: 1, project_name: 'Demo Project', clock_in_time: '2024-05-29T09:00:00Z', clock_out_time: '2024-05-29T17:00:00Z', duration_minutes: 480, notes: 'Worked on feature X' }]);
+                return;
+            }
+
+
+            if (entries && Array.isArray(entries) && entries.length > 0) {
                 renderTimeEntries(entries);
             } else {
                 timeEntriesTbody.innerHTML = '<tr><td colspan="6">No time entries found for the selected criteria.</td></tr>';
@@ -47,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const durationMins = (entry.duration_minutes || 0) % 60;
 
             row.insertCell().textContent = clockIn.toLocaleDateString();
-            row.insertCell().textContent = entry.project_name || entry.project_id || 'N/A';
+            row.insertCell().textContent = entry.project_name || entry.project_id || 'N/A'; // Adjust based on API response
             row.insertCell().textContent = clockIn.toLocaleTimeString();
             row.insertCell().textContent = clockOut ? clockOut.toLocaleTimeString() : 'Still Clocked In';
             row.insertCell().textContent = `${durationHours}h ${durationMins}m`;
