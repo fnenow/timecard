@@ -1,11 +1,12 @@
-//v3
 const { DataTypes, Op } = require('sequelize');
 const sequelize = require('./index');
+const Worker = require('./workerModel');
+const Project = require('./projectModel');
 
 const ClockEntry = sequelize.define('ClockEntry', {
   entry_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  worker_id: { type: DataTypes.INTEGER, allowNull: false },
-  project_id: { type: DataTypes.INTEGER, allowNull: false },
+  worker_id: { type: DataTypes.INTEGER, allowNull: false, references: { model: Worker, key: 'worker_id' } },
+  project_id: { type: DataTypes.INTEGER, allowNull: false, references: { model: Project, key: 'project_id' } },
   clock_in_time: { type: DataTypes.DATE, allowNull: false },
   clock_out_time: { type: DataTypes.DATE, allowNull: true },
   duration_minutes: { type: DataTypes.INTEGER, allowNull: true },
@@ -29,7 +30,7 @@ ClockEntry.findByWorkerId = async function(workerId, filters = {}) {
 };
 
 ClockEntry.getCurrentStatuses = async function() {
-  // Example of a raw query to get current status for all workers (clocked in)
+  // Returns who is currently clocked in
   const [results] = await sequelize.query(`
     SELECT w.worker_id, w.name, ce.project_id, p.project_name, ce.clock_in_time
     FROM workers w
