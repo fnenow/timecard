@@ -9,29 +9,34 @@
 <body>
     <div class="container">
         <h1>Time Clock</h1>
-        <div id="clockStatus">
-            <p>Current Status: <span id="currentStatusText">Not Clocked In</span></p>
-            <p>Project: <span id="currentProjectText">-</span></p>
-            <p>Clocked In At: <span id="clockInTimeText">-</span></p>
+        <div id="loginSection">
+            <h3>Worker Login</h3>
+            <input type="text" id="workerLoginInput" placeholder="Enter Worker Email or ID" autofocus>
+            <button id="workerLoginBtn">Login</button>
         </div>
-        <hr>
+        <div id="clockSection" style="display:none;">
+            <div id="clockStatus">
+                <p>Current Status: <span id="currentStatusText">Not Clocked In</span></p>
+                <p>Project: <span id="currentProjectText">-</span></p>
+                <p>Clocked In At: <span id="clockInTimeText">-</span></p>
+            </div>
+            <hr>
 
-        <!-- Assume worker ID is known, e.g., from a login or selection -->
-        <input type="hidden" id="workerId" value="1"> <!-- Placeholder -->
-
-        <div>
-            <label for="projectSelect">Select Project:</label>
-            <select id="projectSelect">
-                <option value="">Loading projects...</option>
-            </select>
+            <input type="hidden" id="workerId" value="">
+            <div id="projectRadioGroup">
+                <label>Assigned Projects:</label>
+                <div id="projectRadios">Loading projects...</div>
+            </div>
+            <div>
+                <label for="noteInput">Note (optional):</label>
+                <textarea id="noteInput" rows="2" style="width:100%;" placeholder="Describe your tasks, if any..."></textarea>
+            </div>
+            <button id="clockInBtn">Clock In</button>
+            <button id="clockOutBtn" style="display:none;">Clock Out</button>
+            <div id="messageArea" class="message" style="display:none;"></div>
+            <p><a href="worker_view.html">View My Hours</a></p>
+            <p><a href="admin_login.html">Admin Login</a></p>
         </div>
-
-        <button id="clockInBtn">Clock In</button>
-        <button id="clockOutBtn" style="display:none;">Clock Out</button>
-
-        <div id="messageArea" class="message" style="display:none;"></div>
-        <p><a href="worker_view.html">View My Hours</a></p>
-        <p><a href="admin_login.html">Admin Login</a></p>
     </div>
     <script src="js/utils.js"></script>
     <script src="js/main.js"></script>
