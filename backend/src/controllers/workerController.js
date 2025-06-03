@@ -62,5 +62,34 @@ exports.updateWorker = async (req, res) => {
     res.status(500).json({ error: 'Failed to update worker', details: err.message });
   }
 };
+exports.addPayRate = async (req, res) => {
+    try {
+        const { workerId } = req.params;
+        const { rateAmount, effectiveStartDate } = req.body;
+        // const newPayRate = await PayRate.add(workerId, rateAmount, effectiveStartDate);
+        // res.status(201).json(newPayRate);
+        res.status(201).json({ message: 'PayRate.add called', workerId, rateAmount, effectiveStartDate });
+    } catch (error) {
+        res.status(500).json({ message: 'Error adding pay rate', error: error.message });
+    }
+};
 
+exports.getPayRatesForWorker = async (req, res) => {
+    try {
+        // const payRates = await PayRate.findByWorkerId(req.params.workerId);
+        // res.status(200).json(payRates);
+        res.status(200).json({ message: 'PayRate.findByWorkerId called', workerId: req.params.workerId });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching pay rates', error: error.message });
+    }
+};
+exports.getWorkerStatuses = async (req, res) => {
+    try {
+        // const statuses = await ClockEntry.getCurrentStatuses();
+        // res.status(200).json(statuses);
+        res.status(200).json({ message: 'ClockEntry.getCurrentStatuses called' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching worker statuses', error: error.message });
+    }
+};
 // You can implement delete and more fields if needed!
