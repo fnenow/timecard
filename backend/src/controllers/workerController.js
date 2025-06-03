@@ -19,6 +19,15 @@ exports.createWorker = async (req, res) => {
 };
 
 // Get all workers (GET /api/workers)
+exports.getWorkerTimeEntries = async (req, res) => {
+  try {
+    const timeEntries = await ClockEntry.findByWorkerId(req.params.workerId, req.query);
+    res.status(200).json(timeEntries);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching time entries', error: error.message });
+  }
+};
+
 exports.getAllWorkers = async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM workers ORDER BY id ASC');
