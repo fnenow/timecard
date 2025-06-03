@@ -9,11 +9,15 @@
 <body>
     <div class="container">
         <h1>Time Clock</h1>
+
+        <!-- Worker Login Section -->
         <div id="loginSection">
             <h3>Worker Login</h3>
             <input type="text" id="workerLoginInput" placeholder="Enter Worker Email or ID" autofocus>
             <button id="workerLoginBtn">Login</button>
         </div>
+
+        <!-- Clock In/Out Section, hidden until login -->
         <div id="clockSection" style="display:none;">
             <div id="clockStatus">
                 <p>Current Status: <span id="currentStatusText">Not Clocked In</span></p>
@@ -23,16 +27,22 @@
             <hr>
 
             <input type="hidden" id="workerId" value="">
+
+            <!-- Assigned Projects as Radio Buttons -->
             <div id="projectRadioGroup">
                 <label>Assigned Projects:</label>
                 <div id="projectRadios">Loading projects...</div>
             </div>
+
+            <!-- Note Paragraph -->
             <div>
                 <label for="noteInput">Note (optional):</label>
                 <textarea id="noteInput" rows="2" style="width:100%;" placeholder="Describe your tasks, if any..."></textarea>
             </div>
+
             <button id="clockInBtn">Clock In</button>
             <button id="clockOutBtn" style="display:none;">Clock Out</button>
+
             <div id="messageArea" class="message" style="display:none;"></div>
             <p><a href="worker_view.html">View My Hours</a></p>
             <p><a href="admin_login.html">Admin Login</a></p>
