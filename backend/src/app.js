@@ -1,6 +1,8 @@
 //v3
 const express = require('express');
 const projectRoutes = require('./api/projectRoutes');
+const clockRoutes = require('./api/clockRoutes');
+const payrollRoutes = require('./api/payrollRoutes');
 
 const app = express();
 const cors = require('cors');
