@@ -5,12 +5,12 @@ const workerController = require('../controllers/workerController');
 
 // Public or Worker-specific (adjust middleware as needed)
 router.get('/:workerId/time-entries', workerController.getWorkerTimeEntries); // For worker to see their own
-router.get('/', (req, res) => {
-  res.json([
-    { id: 1, name: 'Worker One' },
-    { id: 2, name: 'Worker Two' }
-  ]);
-});
+//router.get('/', (req, res) => {
+//  res.json([
+//    { id: 1, name: 'Worker One' },
+//    { id: 2, name: 'Worker Two' }
+//  ]);
+//});
 // Admin routes (example, protect them later)
 router.post('/', /* admin, */ workerController.createWorker);
 router.get('/', /* admin, */ workerController.getAllWorkers);
