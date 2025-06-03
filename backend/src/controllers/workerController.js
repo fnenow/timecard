@@ -64,15 +64,38 @@ exports.getWorkerStatuses = (req, res) => {
 };
 
 // POST /api/workers/:workerId/pay-rates
-exports.addPayRate = (req, res) => {
-  // Implement DB logic as needed
-  res.json({ message: `Added pay rate for worker ${req.params.workerId}` });
+exports.addPayRate = async (req, res) => {
+  const workerId = req.params.workerId;
+  const { rateAmount, effectiveStartDate } = req.body;
+
+  if (!workerId || !rateAmount || !effectiveStartDate) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  try {
+    const result = await pool.query(
+      `INSERT INTO pay_rates (worker_id, rate_amount, effective_start_date)
+       VALUES ($1, $2, $3)
+       RETURNING *`,
+      [workerId, rateAmount, effectiveStartDate]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add pay rate', details: err.message });
+  }
 };
 
 // GET /api/workers/:workerId/pay-rates
-exports.getPayRatesForWorker = (req, res) => {
-  // Implement DB logic as needed
-  res.json([{ workerId: req.params.workerId, payRate: 30 }]);
+exports.getPayRatesForWorker = async (req, res) => {
+  const workerId = req.params.workerId;
+  try {
+    const result = await pool.query(
+      `SELECT * FROM pay_rates WHERE worker_id = $1 ORDER BY effective_start_date DESC`,
+      [workerId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load pay rates', details: err.message });
+  }
 };
 
 // GET /api/workers/:workerId/time-entries
