@@ -1,12 +1,13 @@
 //v3
 const express = require('express');
 const app = express();
+const cors = require('cors');
 app.use(cors());
 
 
-app.use('/api/workers', workerRoutes);
 const sequelize = require('./models/index');
 const workerRoutes = require('./api/workerRoutes');
+app.use('/api/workers', workerRoutes);
 
 // Middleware, routes, etc.
 app.use(express.json());
