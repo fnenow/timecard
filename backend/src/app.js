@@ -1,5 +1,7 @@
 //v3
 const express = require('express');
+const projectRoutes = require('./api/projectRoutes');
+
 const app = express();
 const cors = require('cors');
 app.use(cors());
