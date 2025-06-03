@@ -1,4 +1,3 @@
-//v4 06/02/25 21:42
 const { Pool } = require('pg');
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
@@ -54,13 +53,36 @@ exports.updateWorker = async (req, res) => {
   }
 };
 
-// GET /api/workers/statuses
-exports.getWorkerStatuses = (req, res) => {
-  // Placeholder: you can make this dynamic!
-  res.json([
-    { worker_id: 1, status: 'active' },
-    { worker_id: 2, status: 'inactive' }
-  ]);
+// GET /api/workers/statuses — LIVE worker clock-in/out status for dashboard!
+exports.getWorkerStatuses = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT w.worker_id, w.name,
+        ce.project_id, p.project_name,
+        ce.clock_in_time
+      FROM workers w
+      LEFT JOIN LATERAL (
+        SELECT *
+        FROM clock_entries
+        WHERE worker_id = w.worker_id
+          AND clock_in_time IS NOT NULL
+          AND clock_out_time IS NULL
+        ORDER BY clock_in_time DESC
+        LIMIT 1
+      ) ce ON TRUE
+      LEFT JOIN projects p ON ce.project_id = p.project_id
+      ORDER BY w.worker_id
+    `);
+    // Each row: if clock_in_time is NOT NULL, worker is clocked in
+    res.json(result.rows.map(row => ({
+      worker_id: row.worker_id,
+      name: row.name,
+      project_name: row.project_name,
+      clock_in_time: row.clock_in_time
+    })));
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load worker statuses', details: err.message });
+  }
 };
 
 // POST /api/workers/:workerId/pay-rates
@@ -99,7 +121,19 @@ exports.getPayRatesForWorker = async (req, res) => {
 };
 
 // GET /api/workers/:workerId/time-entries
-exports.getWorkerTimeEntries = (req, res) => {
-  // Implement DB logic as needed
-  res.json([{ entryId: 1, workerId: req.params.workerId, hours: 8, date: '2024-01-01' }]);
+exports.getWorkerTimeEntries = async (req, res) => {
+  const workerId = req.params.workerId;
+  try {
+    const result = await pool.query(
+      `SELECT ce.*, p.project_name
+       FROM clock_entries ce
+       JOIN projects p ON ce.project_id = p.project_id
+       WHERE ce.worker_id = $1
+       ORDER BY ce.clock_in_time DESC`,
+      [workerId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load time entries', details: err.message });
+  }
 };
