@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const workersTableBody = document.getElementById('workersTableBody');
     const workerForm = document.getElementById('workerForm');
     const workerFormTitle = document.getElementById('workerFormTitle');
-    const workerIdInput = document.getElementById('workerIdInput'); // For editing
+    const workerIdInput = document.getElementById('workerIdInput');
     const workerNameInput = document.getElementById('workerName');
     const workerEmployeeIdInput = document.getElementById('workerEmployeeId');
     const workerPhoneNumberInput = document.getElementById('workerPhoneNumber');
@@ -24,21 +24,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const messageArea = document.getElementById('messageArea');
     const adminLogoutBtn = document.getElementById('adminLogoutBtn');
-    const API_BASE_URL = '..';
+
+    // === SET THIS TO YOUR DEPLOYED BACKEND ===
+    const API_BASE_URL = 'https://backend-production-1ac9.up.railway.app';
 
     let editingWorkerId = null;
 
     async function loadWorkers() {
         workersTableBody.innerHTML = '<tr><td colspan="4">Loading workers...</td></tr>';
         try {
-            const response = await makeApiCall(`${API_BASE_URL}/api/workers`);
-            const workers = response.data || response;
-
-            if (workers && workers.message === 'Worker.findAll called') { // Placeholder check
-                renderWorkers([{ id: 1, name: 'Alice Mock', employee_id_number: 'E123', phone_number: '555-0101' }, { id: 2, name: 'Bob Mock', employee_id_number: 'E124', phone_number: '555-0102' }]);
-                return;
-            }
-
+            const workers = await makeApiCall(`${API_BASE_URL}/api/workers`);
             if (workers && Array.isArray(workers)) {
                 renderWorkers(workers);
             } else {
@@ -52,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderWorkers(workers) {
         workersTableBody.innerHTML = '';
-        if (workers.length === 0) {
+        if (!workers.length) {
             workersTableBody.innerHTML = '<tr><td colspan="4">No workers found. Add one!</td></tr>';
             return;
         }
@@ -77,10 +72,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function populateWorkerFormForEdit(worker) {
-        editingWorkerId = worker.id || worker.worker_id; // Use correct ID property
+        editingWorkerId = worker.id;
         workerFormTitle.textContent = 'Edit Worker';
         workerIdInput.value = editingWorkerId;
-        workerNameInput.value = worker.name;
+        workerNameInput.value = worker.name || '';
         workerEmployeeIdInput.value = worker.employee_id_number || '';
         workerPhoneNumberInput.value = worker.phone_number || '';
         workerAddressInput.value = worker.address || '';
@@ -88,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showAddWorkerFormBtn.style.display = 'none';
         cancelWorkerEditBtn.style.display = 'inline-block';
         saveWorkerBtn.textContent = 'Update Worker';
-        payRateSection.style.display = 'none'; // Hide pay rates when editing worker info
+        payRateSection.style.display = 'none';
     }
 
     function resetWorkerForm() {
@@ -143,16 +138,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Pay Rate Management ---
     async function openPayRateSection(worker) {
-        resetWorkerForm(); // Hide worker form
+        resetWorkerForm();
         workerForm.style.display = 'none';
         showAddWorkerFormBtn.style.display = 'inline-block';
-
-
-        payRateWorkerIdInput.value = worker.id || worker.worker_id;
+        payRateWorkerIdInput.value = worker.id;
         payRateWorkerName.textContent = `Pay Rates for ${worker.name}`;
         payRateSection.style.display = 'block';
         addPayRateForm.reset();
-        await loadPayRates(worker.id || worker.worker_id);
+        await loadPayRates(worker.id);
     }
 
     closePayRateSectionBtn.addEventListener('click', () => {
@@ -162,14 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadPayRates(currentWorkerId) {
         payRatesTableBody.innerHTML = '<tr><td colspan="3">Loading pay rates...</td></tr>';
         try {
-            const response = await makeApiCall(`${API_BASE_URL}/api/workers/${currentWorkerId}/pay-rates`);
-            const rates = response.data || response; // Adjust based on API
-
-             if (rates && rates.message === 'PayRate.findByWorkerId called') { // Placeholder check
-                renderPayRates([{ id: 1, rate_amount: 18.00, effective_start_date: '2024-01-01', effective_end_date: null }]);
-                return;
-            }
-
+            const rates = await makeApiCall(`${API_BASE_URL}/api/workers/${currentWorkerId}/pay-rates`);
             if (rates && Array.isArray(rates)) {
                 renderPayRates(rates);
             } else {
@@ -183,15 +169,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderPayRates(rates) {
         payRatesTableBody.innerHTML = '';
-        if (rates.length === 0) {
+        if (!rates.length) {
             payRatesTableBody.innerHTML = '<tr><td colspan="3">No pay rates found. Add one.</td></tr>';
             return;
         }
-        rates.sort((a,b) => new Date(b.effective_start_date) - new Date(a.effective_start_date)); // Show newest first
+        rates.sort((a,b) => new Date(b.effective_start_date) - new Date(a.effective_start_date));
         rates.forEach(rate => {
             const row = payRatesTableBody.insertRow();
-            row.insertCell().textContent = `$${parseFloat(rate.rate_amount).toFixed(2)}`;
-            row.insertCell().textContent = new Date(rate.effective_start_date).toLocaleDateString();
+            row.insertCell().textContent = `$${parseFloat(rate.rate_amount || rate.payRate || 0).toFixed(2)}`;
+            row.insertCell().textContent = rate.effective_start_date ? new Date(rate.effective_start_date).toLocaleDateString() : '-';
             row.insertCell().textContent = rate.effective_end_date ? new Date(rate.effective_end_date).toLocaleDateString() : 'Current';
         });
     }
@@ -213,12 +199,11 @@ document.addEventListener('DOMContentLoaded', () => {
             await makeApiCall(`${API_BASE_URL}/api/workers/${workerIdForPayRate}/pay-rates`, 'POST', payRateData);
             showMessage('Pay rate added successfully!', 'success');
             addPayRateForm.reset();
-            loadPayRates(workerIdForPayRate); // Refresh list
+            loadPayRates(workerIdForPayRate);
         } catch (error) {
             showMessage(`Error adding pay rate: ${error.message}`, 'error');
         }
     });
-
 
     if (adminLogoutBtn) {
         adminLogoutBtn.addEventListener('click', (e) => {
