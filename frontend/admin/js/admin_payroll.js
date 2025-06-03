@@ -12,57 +12,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageArea = document.getElementById('messageArea');
     const adminLogoutBtn = document.getElementById('adminLogoutBtn');
 
-    const API_BASE_URL = '..';
+    // === Use your real backend API URL here ===
+    const API_BASE_URL = 'https://backend-production-1ac9.up.railway.app';
 
+    // --- Dropdowns ---
     async function loadFilterDropdowns() {
-        // Load Workers
+        // Workers
         try {
-            const workerResponse = await makeApiCall(`${API_BASE_URL}/api/workers`);
-            const workers = workerResponse.data || workerResponse; // Adjust
-            if (workers && workers.message === 'Worker.findAll called') { // Placeholder
-                 [{ id: 1, name: 'Alice Mock' }, { id: 2, name: 'Bob Mock' }].forEach(worker => {
-                    const option = document.createElement('option');
-                    option.value = worker.id;
-                    option.textContent = worker.name;
-                    payrollWorkerFilterSelect.appendChild(option);
-                });
-            } else if (workers && Array.isArray(workers)) {
-                workers.forEach(worker => {
-                    const option = document.createElement('option');
-                    option.value = worker.id || worker.worker_id;
-                    option.textContent = worker.name;
-                    payrollWorkerFilterSelect.appendChild(option);
-                });
-            }
+            const workers = await makeApiCall(`${API_BASE_URL}/api/workers`);
+            workers.forEach(worker => {
+                const option = document.createElement('option');
+                option.value = worker.worker_id;
+                option.textContent = worker.name;
+                payrollWorkerFilterSelect.appendChild(option);
+            });
         } catch (error) {
-            showMessage(`Error loading workers for filter: ${error.message}`, 'error');
+            showMessage(`Error loading workers: ${error.message}`, 'error');
         }
 
-        // Load Projects
+        // Projects
         try {
-            const projectResponse = await makeApiCall(`${API_BASE_URL}/api/projects`);
-            const projects = projectResponse.data || projectResponse; // Adjust
-             if (projects && projects.message === 'Project.findAll called') { // Placeholder
-                [{ id: 1, project_name: 'Alpha Mock' }, { id: 2, project_name: 'Beta Mock' }].forEach(project => {
-                    const option = document.createElement('option');
-                    option.value = project.id;
-                    option.textContent = project.project_name;
-                    payrollProjectFilterSelect.appendChild(option);
-                });
-            } else if (projects && Array.isArray(projects)) {
-                projects.forEach(project => {
-                    const option = document.createElement('option');
-                    option.value = project.id || project.project_id;
-                    option.textContent = project.project_name;
-                    payrollProjectFilterSelect.appendChild(option);
-                });
-            }
+            const projects = await makeApiCall(`${API_BASE_URL}/api/projects`);
+            projects.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project.project_id;
+                option.textContent = project.project_name;
+                payrollProjectFilterSelect.appendChild(option);
+            });
         } catch (error) {
-            showMessage(`Error loading projects for filter: ${error.message}`, 'error');
+            showMessage(`Error loading projects: ${error.message}`, 'error');
         }
     }
 
-
+    // --- Generate Payroll ---
     payrollFilterForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const startDate = payrollStartDateInput.value;
@@ -71,136 +53,102 @@ document.addEventListener('DOMContentLoaded', () => {
         const projectId = payrollProjectFilterSelect.value;
 
         if (!startDate || !endDate) {
-            showMessage('Start date and end date are required for the report.', 'error');
+            showMessage('Start date and end date are required.', 'error');
             return;
         }
 
-        let queryParams = `?startDate=${startDate}&endDate=${endDate}`;
-        if (workerId) queryParams += `&workerId=${workerId}`;
-        if (projectId) queryParams += `&projectId=${projectId}`;
+        // Query string for API
+        let params = [];
+        if (startDate) params.push(`start=${startDate}`);
+        if (endDate) params.push(`end=${endDate}`);
+        if (workerId) params.push(`worker=${workerId}`);
+        if (projectId) params.push(`project=${projectId}`);
+        const query = params.length ? `?${params.join('&')}` : '';
 
         payrollReportContainer.innerHTML = '<p>Generating report...</p>';
         reportPeriodDisplay.innerHTML = '';
         reportTotalsDisplay.innerHTML = '';
 
         try {
-            const response = await makeApiCall(`${API_BASE_URL}/api/payroll/report${queryParams}`);
-            // The actual report data is expected in response.report based on backend controller
-            const reportData = response.report;
+            // GET payroll report
+            const entries = await makeApiCall(`${API_BASE_URL}/api/payroll${query}`);
+            renderPayrollReport(entries);
 
-            if (reportData && reportData.workers_payroll) {
-                renderPayrollReport(reportData);
-                 reportPeriodDisplay.innerHTML = `<strong>Report for Period:</strong> ${new Date(reportData.report_period.start_date).toLocaleDateString()} - ${new Date(reportData.report_period.end_date).toLocaleDateString()}`;
-            } else {
-                payrollReportContainer.innerHTML = `<p>No payroll data found for the selected criteria. API Message: ${response.message || 'No data'}</p>`;
-            }
+            // Display period
+            reportPeriodDisplay.innerHTML =
+                `<strong>Report for Period:</strong> ${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`;
         } catch (error) {
             showMessage(`Error generating payroll report: ${error.message}`, 'error');
             payrollReportContainer.innerHTML = `<p>Error: ${error.message}</p>`;
         }
     });
 
-    function renderPayrollReport(reportData) {
+    // --- Render Payroll ---
+    function renderPayrollReport(entries) {
         payrollReportContainer.innerHTML = ''; // Clear previous
-        if (!reportData.workers_payroll || reportData.workers_payroll.length === 0) {
-            payrollReportContainer.innerHTML = '<p>No payroll data for any workers in this period.</p>';
+        if (!entries.length) {
+            payrollReportContainer.innerHTML = '<p>No payroll data for the selected period.</p>';
             return;
         }
+        let html = '<table><thead><tr>' +
+            '<th>Worker</th><th>Project</th><th>Date</th><th>Clock In</th><th>Clock Out</th>' +
+            '<th>Duration (m)</th><th>Pay Rate</th><th>Amount ($)</th>' +
+            '<th>Bill #</th><th>Paid Date</th>' +
+            '</tr></thead><tbody>';
+        let totalAmount = 0, totalMinutes = 0;
+        entries.forEach(entry => {
+            const duration = entry.duration_minutes || 0;
+            const payRate = entry.recorded_pay_rate || 0;
+            const amount = duration && payRate ? ((duration / 60) * payRate).toFixed(2) : '';
+            totalAmount += Number(amount) || 0;
+            totalMinutes += duration;
 
-        let grandTotalAllPay = 0;
-        let grandTotalAllHours = 0;
-
-        reportData.workers_payroll.forEach(workerPayroll => {
-            const workerTable = document.createElement('table');
-            workerTable.innerHTML = `
-                <caption>Payroll for: ${workerPayroll.worker_name} (ID: ${workerPayroll.worker_id})</caption>
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Hours</th>
-                        <th>Pay Rate ($)</th>
-                        <th>Amount ($)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>Regular</td><td>${workerPayroll.regular_hours.toFixed(2)}</td><td>Avg.</td><td>${workerPayroll.regular_pay.toFixed(2)}</td></tr>
-                    <tr><td>Daily OT</td><td>${workerPayroll.daily_ot_hours.toFixed(2)}</td><td>Avg. x1.5</td><td>${workerPayroll.daily_ot_pay.toFixed(2)}</td></tr>
-                    <tr><td>Weekly OT</td><td>${workerPayroll.weekly_ot_hours.toFixed(2)}</td><td>Avg. x1.5</td><td>${workerPayroll.weekly_ot_pay.toFixed(2)}</td></tr>
-                    <tr><td colspan="3"><strong>Total Hours for Worker</strong></td><td><strong>${workerPayroll.total_hours.toFixed(2)}</strong></td></tr>
-                    <tr><td colspan="3"><strong>Total Pay for Worker</strong></td><td><strong>${workerPayroll.grand_total_pay.toFixed(2)}</strong></td></tr>
-                </tbody>
-            `;
-            payrollReportContainer.appendChild(workerTable);
-            payrollReportContainer.appendChild(document.createElement('hr'));
-
-            grandTotalAllPay += workerPayroll.grand_total_pay;
-            grandTotalAllHours += workerPayroll.total_hours;
-
-            // Optional: Render detailed entries if available in workerPayroll.entries_detail
-            if(workerPayroll.entries_detail && workerPayroll.entries_detail.length > 0) {
-                const detailsHeader = document.createElement('h4');
-                detailsHeader.textContent = 'Time Entries Detail:';
-                payrollReportContainer.appendChild(detailsHeader);
-                const detailsTable = document.createElement('table');
-                detailsTable.innerHTML = `
-                    <thead><tr><th>Date</th><th>Project</th><th>In</th><th>Out</th><th>Duration (m)</th><th>Rate</th><th>Bill #</th><th>Paid Date</th><th>Action</th></tr></thead>
-                    <tbody></tbody>
-                `;
-                const detailsTbody = detailsTable.querySelector('tbody');
-                workerPayroll.entries_detail.forEach(entry => {
-                    const tr = detailsTbody.insertRow();
-                    tr.insertCell().textContent = new Date(entry.clock_in_time).toLocaleDateString();
-                    tr.insertCell().textContent = entry.project_name || entry.project_id;
-                    tr.insertCell().textContent = new Date(entry.clock_in_time).toLocaleTimeString();
-                    tr.insertCell().textContent = new Date(entry.clock_out_time).toLocaleTimeString();
-                    tr.insertCell().textContent = entry.duration_minutes;
-                    tr.insertCell().textContent = entry.recorded_pay_rate.toFixed(2);
-                    
-                    const billInput = document.createElement('input');
-                    billInput.type = 'text';
-                    billInput.value = entry.bill_number || '';
-                    billInput.dataset.entryId = entry.entry_id;
-                    billInput.classList.add('billNumberInput');
-                    tr.insertCell().appendChild(billInput);
-
-                    const paidDateInput = document.createElement('input');
-                    paidDateInput.type = 'date';
-                    paidDateInput.value = entry.worker_paid_date ? entry.worker_paid_date.split('T')[0] : '';
-                    paidDateInput.dataset.entryId = entry.entry_id;
-                    paidDateInput.classList.add('paidDateInput');
-                    tr.insertCell().appendChild(paidDateInput);
-
-                    const updateBtn = document.createElement('button');
-                    updateBtn.textContent = 'Update';
-                    updateBtn.onclick = () => updateBillingInfo(entry.entry_id || entry.id, billInput.value, paidDateInput.value);
-                    tr.insertCell().appendChild(updateBtn);
-                });
-                payrollReportContainer.appendChild(detailsTable);
-                payrollReportContainer.appendChild(document.createElement('hr'));
-            }
+            html += `<tr>
+                <td>${entry.worker_name || entry.worker_id}</td>
+                <td>${entry.project_name || entry.project_id}</td>
+                <td>${entry.clock_in_time ? new Date(entry.clock_in_time).toLocaleDateString() : ''}</td>
+                <td>${entry.clock_in_time ? new Date(entry.clock_in_time).toLocaleTimeString() : ''}</td>
+                <td>${entry.clock_out_time ? new Date(entry.clock_out_time).toLocaleTimeString() : ''}</td>
+                <td>${duration}</td>
+                <td>${payRate}</td>
+                <td>${amount}</td>
+                <td>
+                    <input type="text" value="${entry.bill_number || ''}" data-entry-id="${entry.entry_id}" class="billNumberInput">
+                </td>
+                <td>
+                    <input type="date" value="${entry.worker_paid_date ? entry.worker_paid_date.split('T')[0] : ''}" data-entry-id="${entry.entry_id}" class="paidDateInput">
+                </td>
+            </tr>`;
         });
+        html += '</tbody></table>';
+        payrollReportContainer.innerHTML = html;
+        reportTotalsDisplay.innerHTML =
+            `<h3>Report Totals</h3>
+             <p><strong>Total Hours:</strong> ${(totalMinutes/60).toFixed(2)}</p>
+             <p><strong>Total Pay:</strong> $${totalAmount.toFixed(2)}</p>`;
 
-        reportTotalsDisplay.innerHTML = `
-            <h3>Report Grand Totals</h3>
-            <p><strong>Total Hours (All Workers):</strong> ${grandTotalAllHours.toFixed(2)}</p>
-            <p><strong>Total Pay (All Workers):</strong> $${grandTotalAllPay.toFixed(2)}</p>
-        `;
+        // --- Add Update Buttons ---
+        document.querySelectorAll('.billNumberInput, .paidDateInput').forEach(input => {
+            input.addEventListener('change', () => {
+                const entryId = input.dataset.entryId;
+                const billNumber = document.querySelector(`input.billNumberInput[data-entry-id="${entryId}"]`).value;
+                const paidDate = document.querySelector(`input.paidDateInput[data-entry-id="${entryId}"]`).value;
+                updateBillingInfo(entryId, billNumber, paidDate);
+            });
+        });
     }
 
     async function updateBillingInfo(entryId, billNumber, paidDate) {
         try {
-            await makeApiCall(`${API_BASE_URL}/api/payroll/time-entries/${entryId}/billing`, 'PUT', {
+            await makeApiCall(`${API_BASE_URL}/api/clock/${entryId}/billing`, 'PUT', {
                 bill_number: billNumber,
-                worker_paid_date: paidDate || null // Send null if date is cleared
+                worker_paid_date: paidDate || null
             });
-            showMessage(`Billing info for entry ${entryId} updated. Regenerate report to see changes reflected if needed, or handle UI update directly.`, 'success');
-            // Optionally, re-fetch or update the specific entry in the UI.
-            // For simplicity, we'll just show a message.
+            showMessage(`Billing info updated.`, 'success');
         } catch (error) {
-            showMessage(`Error updating billing for entry ${entryId}: ${error.message}`, 'error');
+            showMessage(`Error updating billing: ${error.message}`, 'error');
         }
     }
-
 
     if (adminLogoutBtn) {
         adminLogoutBtn.addEventListener('click', (e) => {
