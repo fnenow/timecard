@@ -1,49 +1,57 @@
 //v3
-const ClockEntry = require('../models/clockEntryModel');
+const { Pool } = require('pg');
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-// Use async/real version for getWorkerTimeEntries
-exports.getWorkerTimeEntries = async (req, res) => {
+// Create a new worker (POST /api/workers)
+exports.createWorker = async (req, res) => {
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ error: 'Worker name is required' });
+
   try {
-    const timeEntries = await ClockEntry.findByWorkerId(req.params.workerId, req.query);
-    res.status(200).json(timeEntries);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching time entries', error: error.message });
+    const result = await pool.query(
+      'INSERT INTO workers (name) VALUES ($1) RETURNING *',
+      [name]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to create worker', details: err.message });
   }
 };
 
-// Use async/real version for getWorkerStatuses
-exports.getWorkerStatuses = async (req, res) => {
+// Get all workers (GET /api/workers)
+exports.getAllWorkers = async (req, res) => {
   try {
-    const statuses = await ClockEntry.getCurrentStatuses();
-    res.status(200).json(statuses);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching worker statuses', error: error.message });
+    const result = await pool.query('SELECT * FROM workers ORDER BY id ASC');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch workers', details: err.message });
   }
 };
 
-exports.createWorker = (req, res) => {
-  res.json({ message: 'Worker created (placeholder)' });
+// Get a worker by ID (GET /api/workers/:workerId)
+exports.getWorkerById = async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM workers WHERE id = $1', [req.params.workerId]);
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Worker not found' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch worker', details: err.message });
+  }
 };
 
-exports.getAllWorkers = (req, res) => {
-  res.json([
-    { id: 1, name: 'Worker One' },
-    { id: 2, name: 'Worker Two' }
-  ]);
+// Update a worker (PUT /api/workers/:workerId)
+exports.updateWorker = async (req, res) => {
+  const { name } = req.body;
+  try {
+    const result = await pool.query(
+      'UPDATE workers SET name = $1 WHERE id = $2 RETURNING *',
+      [name, req.params.workerId]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Worker not found' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update worker', details: err.message });
+  }
 };
 
-exports.getWorkerById = (req, res) => {
-  res.json({ id: req.params.workerId, name: 'Worker Placeholder' });
-};
-
-exports.updateWorker = (req, res) => {
-  res.json({ message: `Worker ${req.params.workerId} updated (placeholder)` });
-};
-
-exports.addPayRate = (req, res) => {
-  res.json({ message: `Added pay rate for worker ${req.params.workerId}` });
-};
-
-exports.getPayRatesForWorker = (req, res) => {
-  res.json([{ workerId: req.params.workerId, payRate: 30 }]);
-};
+// You can implement delete and more fields if needed!
