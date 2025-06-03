@@ -10,6 +10,10 @@ app.use(express.json());
 const sequelize = require('./models/index');
 const workerRoutes = require('./api/workerRoutes');
 app.use('/api/workers', workerRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/clock',clockRoutes);
+app.use('/api/payroll',payrollRoutes);
+
 
 // Example worker route (add others as needed)
 const workerController = require('./controllers/workerController');
