@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterBtn = document.getElementById('filterBtn');
     const timeEntriesTbody = document.getElementById('timeEntriesTbody');
     const messageArea = document.getElementById('messageArea');
-    const API_BASE_URL = ''; // Relative
+    const API_BASE_URL = 'https://backend-production-1ac9.up.railway.app'; // Relative
 
     async function fetchTimeEntries() {
         const workerId = workerIdInput.value;
