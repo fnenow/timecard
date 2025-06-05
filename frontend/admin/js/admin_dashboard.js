@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const workerStatusTableBody = document.getElementById('workerStatusTableBody');
     const messageArea = document.getElementById('messageArea');
     const adminLogoutBtn = document.getElementById('adminLogoutBtn');
-    const API_BASE_URL = 'https://backend-production-1ac9.up.railway.app';
+    const API_BASE_URL = 'https://backend-timeclock.up.railway.app';
 
     async function loadWorkerStatuses() {
         workerStatusTableBody.innerHTML = '<tr><td colspan="5">Loading statuses...</td></tr>';
