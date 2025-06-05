@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageArea = document.getElementById('messageArea');
     const adminLogoutBtn = document.getElementById('adminLogoutBtn');
 
-    const API_BASE_URL = 'https://backend-production-1ac9.up.railway.app'; // Relative to admin folder
+    const API_BASE_URL = 'https://backend-timeclock.up.railway.app'; // Relative to admin folder
 
     let editingProjectId = null;
 
