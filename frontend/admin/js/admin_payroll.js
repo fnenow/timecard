@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminLogoutBtn = document.getElementById('adminLogoutBtn');
 
     // === Use your real backend API URL here ===
-    const API_BASE_URL = 'https://backend-production-1ac9.up.railway.app';
+    const API_BASE_URL = 'https://backend-timeclock.up.railway.app';
 
     // --- Dropdowns ---
     async function loadFilterDropdowns() {
