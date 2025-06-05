@@ -1,39 +1,69 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Worker Clock In/Out</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Time Clock</h1>
-        <div id="clockStatus">
-            <p>Current Status: <span id="currentStatusText">Not Clocked In</span></p>
-            <p>Project: <span id="currentProjectText">-</span></p>
-            <p>Clocked In At: <span id="clockInTimeText">-</span></p>
-        </div>
-        <hr>
-
-        <!-- Assume worker ID is known, e.g., from a login or selection -->
-
-
-        <div>
-            <label for="projectSelect">Select Project:</label>
-            <select id="projectSelect">
-                <option value="">Loading projects...</option>
-            </select>
-        </div>
-
-        <button id="clockInBtn">Clock In</button>
-        <button id="clockOutBtn" style="display:none;">Clock Out</button>
-
-        <div id="messageArea" class="message" style="display:none;"></div>
-        <p><a href="worker_view.html">View My Hours</a></p>
-        <p><a href="admin_login.html">Admin Login</a></p>
-    </div>
-    <script src="js/utils.js"></script>
-    <script src="js/main.js"></script>
-</body>
-</html>
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/frontend/index.html b/frontend/index.html
+index e43e2475b32bdd4f4df2d1fd69facaa78454f5ff..b36f49ae7cadd4a84a6c9c0d40fcca1105b95629 100644
+--- a/frontend/index.html
++++ b/frontend/index.html
+@@ -1,39 +1,42 @@
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Worker Clock In/Out</title>
+     <link rel="stylesheet" href="css/style.css">
+ </head>
+ <body>
+     <div class="container">
+         <h1>Time Clock</h1>
+-        <div id="clockStatus">
+-            <p>Current Status: <span id="currentStatusText">Not Clocked In</span></p>
+-            <p>Project: <span id="currentProjectText">-</span></p>
+-            <p>Clocked In At: <span id="clockInTimeText">-</span></p>
++        <div id="loginSection">
++            <label for="workerLoginInput">Worker Email or Employee ID:</label>
++            <input type="text" id="workerLoginInput">
++            <button id="workerLoginBtn">Login</button>
+         </div>
+-        <hr>
+ 
+-        <!-- Assume worker ID is known, e.g., from a login or selection -->
+-
+-
+-        <div>
+-            <label for="projectSelect">Select Project:</label>
+-            <select id="projectSelect">
+-                <option value="">Loading projects...</option>
+-            </select>
++        <div id="clockSection" style="display:none;">
++            <input type="hidden" id="workerId" value="">
++            <div id="clockStatus">
++                <p>Current Status: <span id="currentStatusText">Not Clocked In</span></p>
++                <p>Project: <span id="currentProjectText">-</span></p>
++                <p>Clocked In At: <span id="clockInTimeText">-</span></p>
++            </div>
++            <hr>
++            <div id="projectRadios"></div>
++            <div>
++                <label for="noteInput">Note:</label>
++                <input type="text" id="noteInput">
++            </div>
++            <button id="clockInBtn">Clock In</button>
++            <button id="clockOutBtn" style="display:none;">Clock Out</button>
++            <p><a href="worker_view.html">View My Hours</a></p>
++            <p><a href="admin_login.html">Admin Login</a></p>
+         </div>
+ 
+-        <button id="clockInBtn">Clock In</button>
+-        <button id="clockOutBtn" style="display:none;">Clock Out</button>
+-
+         <div id="messageArea" class="message" style="display:none;"></div>
+-        <p><a href="worker_view.html">View My Hours</a></p>
+-        <p><a href="admin_login.html">Admin Login</a></p>
+     </div>
+     <script src="js/utils.js"></script>
+     <script src="js/main.js"></script>
+ </body>
+ </html>
+ 
+EOF
+)
