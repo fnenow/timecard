@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clockInTimeText = document.getElementById('clockInTimeText');
 
     // --- Use your real backend base URL! ---
-    const API_BASE_URL = 'https://backend-production-1ac9.up.railway.app';
+    const API_BASE_URL = 'https://backend-timeclock.up.railway.app';
 
     let currentWorker = null;
     let currentClockIn = null; // Store current clock in data
