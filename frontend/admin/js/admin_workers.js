@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminLogoutBtn = document.getElementById('adminLogoutBtn');
 
     // === SET THIS TO YOUR DEPLOYED BACKEND ===
-    const API_BASE_URL = 'https://backend-timeclock.up.railway.app';
+    const API_BASE_URL = 'http://backend-timeclock.up.railway.app';
 
     let editingWorkerId = null;
 
