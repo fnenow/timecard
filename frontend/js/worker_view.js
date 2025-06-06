@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterBtn = document.getElementById('filterBtn');
     const timeEntriesTbody = document.getElementById('timeEntriesTbody');
     const messageArea = document.getElementById('messageArea');
-    const API_BASE_URL = 'http://backend-timeclock.up.railway.app'; // Relative
+    const API_BASE_URL = 'https://backend-timeclock.up.railway.app'; // Relative
 
     async function fetchTimeEntries() {
         const workerId = workerIdInput.value;
